@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException, UploadFile, Form, Depends
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form, Depends
 from app.schemas import PostCreate, PostResponse
 from app.db import Post, create_db_and_tables, get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from contextlib import asynccontextmanager
 
 # 58:00 responsible for database creation ??
@@ -37,7 +38,27 @@ async def upload_file(
     await session.refresh(post)
     return post
 
+@app.get("/feed")
+async def get_feed(
+        session: AsyncSession = Depends(get_async_session)
+):
+    # querying below, very similar to django queries, also inside views
+    result = await session.execute(select(Post).order_by(Post.created_at.desc()))
+    posts = [row[0] for row in result.all()]
 
+    posts_data = []
+    for post in posts:
+        posts_data.append(
+            {
+                "id": str(post.id),
+                "caption": post.caption,
+                "url": post.url,
+                "file_type": post.file_type,
+                "file_name": post.file_name,
+                "created_at": post.created_at.isoformat(),
+            }
+        )
+    return posts_data
 
 # 1hr Commenting out the pre-db structure:
 #
