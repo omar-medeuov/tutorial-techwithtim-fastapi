@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from app.schemas import PostCreate
 
 app = FastAPI()
 
@@ -32,7 +33,16 @@ def get_post(id:int):
 
     return text_posts.get(id)
 
-
+# request body. it's hidden, schema has to be used.
+# So by using a schema class as the type for the parameter
+# we let fastapi know that we should be receiving a request body
+# and not a query parameter!
+@app.post("/posts")
+def create_post(post: PostCreate):
+    new_post = {"title": post.title, "content": post.content}
+    # Because the attributes of PostCreate have type hints, Pydantic will add a check?
+    text_posts[max(text_posts.keys()) +1] = {"title": post.title, "content": post.content}
+    return new_post
 
 #22:02 CRUD
 
