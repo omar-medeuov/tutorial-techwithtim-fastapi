@@ -1,6 +1,6 @@
 from collections. abc import AsyncGenerator
 import uuid
-import datetime
+from datetime import datetime
 
 from sqlalchemy import Column, String, Text, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
@@ -10,10 +10,13 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 # allows to connect to loal db file
 DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 
+class Base(DeclarativeBase):
+    pass
+
 # for any database need to define the structure of the data
 # create a data model for storing a Post
 
-class Post(DeclarativeBase):
+class Post(Base):
     __tablename__ = "posts"
 
     # id needed for every single entity, since it's a primary key
@@ -34,7 +37,7 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 # 1.starts engine, 2. creates the db
 async def create_db_and_tables():
     async with engine.begin() as conn:
-        await conn.run_sync(DeclarativeBase.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 # creates the session, WHICH allows to write, read asynchronously
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:

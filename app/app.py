@@ -1,7 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from app.schemas import PostCreate, PostResponse
+from app.db import Post, create_db_and_tables, get_async_session
+from sqlalchemy.ext.asyncio import AsyncSession
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+# 58:00 responsible for database creation ??
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await create_db_and_tables()
+    yield
+
+# passing lifespan in as an argument, will run the async function on startup
+
+app = FastAPI(lifespan=lifespan)
 
 
 # Right, So at this early stage this dictionary is basically our DB
@@ -49,6 +60,9 @@ def create_post(post: PostCreate) -> PostResponse:
     text_posts[max(text_posts.keys()) +1] = {"title": post.title, "content": post.content}
     # return new_post
     return new_post
+
+
+
 
 # 44:00 without return types, the swagger doc is not going to be very informative.
 
