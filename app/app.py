@@ -1,7 +1,12 @@
 from fastapi import FastAPI, HTTPException
-from app.schemas import PostCreate
+from app.schemas import PostCreate, PostResponse
 
 app = FastAPI()
+
+
+# Right, So at this early stage this dictionary is basically our DB
+# The methods read the values from here to return to the user
+# the post method writes the newly created values to this dictionary
 
 text_posts = {
     1: {"title": "New Post", "content": "Cool test post"},
@@ -27,7 +32,7 @@ def get_all_posts(limit: int = None):
 
 # without a type hint for id parameter, can't get the values
 @app.get("/posts/{id}")
-def get_post(id:int):
+def get_post(id:int) -> PostResponse:
     if id not in text_posts:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -38,11 +43,15 @@ def get_post(id:int):
 # we let fastapi know that we should be receiving a request body
 # and not a query parameter!
 @app.post("/posts")
-def create_post(post: PostCreate):
+def create_post(post: PostCreate) -> PostResponse:
     new_post = {"title": post.title, "content": post.content}
     # Because the attributes of PostCreate have type hints, Pydantic will add a check?
     text_posts[max(text_posts.keys()) +1] = {"title": post.title, "content": post.content}
+    # return new_post
     return new_post
+
+# 44:00 without return types, the swagger doc is not going to be very informative.
+
 
 #22:02 CRUD
 
