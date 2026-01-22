@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from contextlib import asynccontextmanager
 from app.images import imagekit
-from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
+from imagekitio._models.UploadFileRequestOptions import UploadFileRequestOptions
 import shutil
 import os
 import uuid
